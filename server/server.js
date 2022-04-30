@@ -1,40 +1,41 @@
-const jwt = require("jsonwebtoken");
+const express = require("express");
+// import ApolloServer
+const { ApolloServer } = require("apollo-server-express");
+const { authMiddleware } = require("./utils/auth");
+// import our typeDefs and resolvers
+const { typeDefs, resolvers } = require("./schemas");
+const path = require("path");
+const db = require("./config/connection");
 
-// set token secret and expiration date
-const secret = "mysecretsshhhhh";
-const expiration = "2h";
+const app = express();
+const PORT = process.env.PORT || 3001;
 
-module.exports = {
-  // function for our authenticated routes
-  authMiddleware: function ({ req }) {
-    // allows token to be sent via req.body, req.query, or headers
-    let token = req.body.token || req.query.token || req.headers.authorization;
+// create a new Apollo server and pass in our schema data
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: authMiddleware,
+});
 
-    // separate "Bearer" from "<tokenvalue>"
-    if (req.headers.authorization) {
-      token = token.split(" ").pop().trim();
-    }
+// integrate our Apollo server with the Express application as middleware
+server.applyMiddleware({ app });
 
-    // if no token, return request object as is
-    if (!token) {
-      return req;
-    }
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-    try {
-      // decode and attach user data to request object
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      req.user = data;
-    } catch {
-      console.log("Invalid token");
-    }
+// if we're in production, serve client/build as static assets
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+}
 
-    // return updated request object
-    return req;
-  },
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
 
-  signToken: function ({ username, email, _id }) {
-    const payload = { username, email, _id };
-
-    return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
-  },
-};
+db.once("open", () => {
+  app.listen(PORT, () => {
+    console.log(`API server running on port ${PORT}!`);
+    // log where we can go to test our GQL API
+    console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);
+  });
+});
