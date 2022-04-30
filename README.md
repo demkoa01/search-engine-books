@@ -50,6 +50,7 @@
 ### - Heroku
 
 ## Deployed URL
+### https://pure-beyond-41226.herokuapp.com/
 
 ## Additional Github Repo
 ### I had started this project and ran into an error "May need additional loaders". After uninstalling & reinstalling all necessary technology, I deieced it was best to re-do the project in a new repo. If you'd like to see this work & how it transfered over, click this link:
