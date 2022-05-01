@@ -57,4 +57,5 @@
 ### https://github.com/demkoa01/book-search-engine
 
 ## Screenshot
-![screenshot](C:\Users\amd01\Documents\projects\homework-21\search-engine-books\screenshot.JPG)
+![screenshot](https://user-images.githubusercontent.com/93881224/166160525-99fef5f0-aeb7-4cc6-8639-bbe4dc9e6508.JPG)
+
